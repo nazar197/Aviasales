@@ -53,21 +53,18 @@ const compareCities = (departureCity, arrivalCity) => {
   }
 };
 
-// Обработчики событий для полей ввода
+// Выбор города из выпадающего списка с автозаполнением поля ввода
+const selectCity = (event, input, list) => {
+  const target = event.target;
+  if (target.tagName.toLowerCase() === 'li') {
+    input.value = target.textContent;
+    list.textContent = '';
+  }
+}
 
 // Ввести: Откуда
 inputCitiesFrom.addEventListener('input', () => {
   showCity(inputCitiesFrom, dropdownCitiesFrom);
-  compareCities(inputCitiesFrom, inputCitiesTo);
-});
-
-// Выпадающий список с дополнением строки для поля - Откуда
-dropdownCitiesFrom.addEventListener('click', (event) => {
-  const target = event.target;
-  if (target.tagName.toLowerCase() === 'li') {
-    inputCitiesFrom.value = target.textContent;
-    dropdownCitiesFrom.textContent = '';
-  }
   compareCities(inputCitiesFrom, inputCitiesTo);
 });
 
@@ -77,12 +74,14 @@ inputCitiesTo.addEventListener('input', () => {
   compareCities(inputCitiesFrom, inputCitiesTo);
 });
 
-// Выпадающий список с дополнением строки для поля - Куда
+// Выпадающий список для поля - Откуда
+dropdownCitiesFrom.addEventListener('click', (event) => {
+  selectCity(event, inputCitiesFrom, dropdownCitiesFrom);
+  compareCities(inputCitiesFrom, inputCitiesTo);
+});
+
+// Выпадающий список для поля - Куда
 dropdownCitiesTo.addEventListener('click', (event) => {
-  const target = event.target;
-  if (target.tagName.toLowerCase() === 'li') {
-    inputCitiesTo.value = target.textContent;
-    dropdownCitiesTo.textContent = '';
-  }
+  selectCity(event, inputCitiesTo, dropdownCitiesTo);
   compareCities(inputCitiesFrom, inputCitiesTo);
 });
