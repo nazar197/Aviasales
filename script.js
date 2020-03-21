@@ -15,7 +15,8 @@ const
 // Получаем данные с файла
   // CITIES_API = 'data/cities.json',
   PROXY = 'https://cors-anywhere.herokuapp.com/',
-  API_KEY = '81f67e92f1c6bf62ab4047b1fbcfef4a';
+  API_KEY = '81f67e92f1c6bf62ab4047b1fbcfef4a',
+  CALENDAR = 'http://min-prices.aviasales.ru/calendar_preload';
 
 let citiesArray = [];
 
@@ -119,6 +120,34 @@ const compareCities = (departureCity, arrivalCity) => {
   }
 };
 
+/**
+ * Отображение дешевых полетов на текущий день
+ */
+const renderCheapDay = (cheapFlight) => {
+  console.log(cheapFlight);
+};
+
+/**
+ * Отображение дешевых полетов на текущий год
+ */
+const renderCheapYear = (cheapFlights) => {
+  console.log(cheapFlights);
+};
+
+/**
+ * Парсинг дешевых полетов
+ */
+const renderCheap = (data, date) => {
+
+  const cheapFlightsYear = JSON.parse(data).best_prices;
+  
+  const cheapFlightDay = cheapFlightsYear.filter(item => item.depart_date === date);
+  
+  renderCheapDay(cheapFlightDay);
+  renderCheapYear(cheapFlightsYear);
+}
+
+
 /* /Функции */ 
 
 /* Обработчики событий */ 
@@ -145,6 +174,32 @@ dropdownCitiesFrom.addEventListener('click', (event) => {
 dropdownCitiesTo.addEventListener('click', (event) => {
   selectCity(event, inputCitiesTo, dropdownCitiesTo);
   compareCities(inputCitiesFrom, inputCitiesTo);
+});
+
+
+/**
+ * Обработчик формы принимает объект события. 
+ * Формирует обьект с данными полета и заносит их в запрос.
+ * Полученные данные отправляет на парсинг.
+ * Чтобы браузер не перезагружал страницу при отправке формы 
+ * и данные не терялись, - к объекту события добавлен специальный метод.
+ */
+formSearch.addEventListener('submit', (event) => {
+  // Чтобы браузер не перезагружал страницу и данные не терялись 
+  event.preventDefault();
+
+  const formData = {
+    from: citiesArray.find((item) => inputCitiesFrom.value === item.name).code,
+    to: citiesArray.find((item) => inputCitiesTo.value === item.name).code,
+    when: inputDateDepart.value
+  }
+
+  const requestData = 
+    `?depart_date=${formData.when}&origin=${formData.from}` + 
+    `&destination=${formData.to}&one_way=true`;
+
+  getData(CALENDAR+requestData, response => renderCheap(response, formData.when));
+
 });
 
 /* /Обработчики событий */ 
