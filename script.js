@@ -16,6 +16,7 @@ const
   // CITIES_API = 'data/cities.json',
   PROXY = 'https://cors-anywhere.herokuapp.com/',
   API_KEY = '81f67e92f1c6bf62ab4047b1fbcfef4a';
+  CALENDAR = 'http://min-prices.aviasales.ru/calendar_preload'
 
 let citiesArray = [];
 
@@ -158,4 +159,9 @@ getData(PROXY + CITIES_API,
 // Получение данных с файла 
 // getData(CITIES_API, data => citiesArray = JSON.parse(data).filter(item => item.name));
 
+// Запросить и вывести в консоль лучшее предложение о направлении из Лиссабона в Ниццу на 13.05.2020
+getData(PROXY + CALENDAR + 
+  '?depart_date=2020-05-13&origin=LIS&destination=NCE&one_way=true&token=' + API_KEY,
+	data => 
+    console.log(JSON.parse(data).best_prices.filter(item => item.depart_date === '2020-05-13')));
 /* /Вызовы функций */ 
