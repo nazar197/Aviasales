@@ -1,4 +1,4 @@
-/* Данные */ 
+/* Данные */
 
 // Элементы формы
 const formSearch = document.querySelector('.form-search'),
@@ -9,39 +9,39 @@ const formSearch = document.querySelector('.form-search'),
   inputDateDepart = formSearch.querySelector('.input__date-depart'),
   buttonSearch = formSearch.querySelector('.button__search');
 
-const 
-// Получаем данные с сервера 
+const
+  // Получаем данные с сервера 
   CITIES_API = 'http://api.travelpayouts.com/data/ru/cities.json',
-// Получаем данные с файла
+  // Получаем данные с файла
   // CITIES_API = 'data/cities.json',
   PROXY = 'https://cors-anywhere.herokuapp.com/',
-  API_KEY = '81f67e92f1c6bf62ab4047b1fbcfef4a';
-  CALENDAR = 'http://min-prices.aviasales.ru/calendar_preload'
+  API_KEY = '81f67e92f1c6bf62ab4047b1fbcfef4a',
+  CALENDAR = 'http://min-prices.aviasales.ru/calendar_preload';
 
 let citiesArray = [];
 
-/* /Данные */ 
+/* /Данные */
 
-/* Функции */ 
+/* Функции */
 
 /**
  * Запрос на получение данных
  * Принимает адрес запроса и колбэк-функцию.
  * Запрашивает данные по адресу url и, в случае успеха,
  * передает полученные данные в колбэк
-*/
+ */
 const getData = (url, callback) => {
   // Создаем объект на основе API XMLHttpRequest, встроенный в браузер
   const request = new XMLHttpRequest();
-  
+
   // Указываем тип запроса и url-адрес(куда будем отправлять)
   request.open('GET', url);
 
   // Обработчик события, чтобы не пропустить ответ
   request.addEventListener('readystatechange', () => {
-    if(request.readyState !== 4) return;
-    
-    if(request.status === 200) {
+    if (request.readyState !== 4) return;
+
+    if (request.status === 200) {
       callback(request.response);
     } else {
       console.error(request.status);
@@ -66,7 +66,7 @@ const showCitiesList = (input, list) => {
       const fixItem = item.name.toLowerCase();
 
       // Отсеять лишние города по первой букве
-      if (input.value[0].toLowerCase() == fixItem[0]){
+      if (input.value[0].toLowerCase() == fixItem[0]) {
         return fixItem.includes(input.value.toLowerCase());
       }
     });
@@ -120,9 +120,9 @@ const compareCities = (departureCity, arrivalCity) => {
   }
 };
 
-/* /Функции */ 
+/* /Функции */
 
-/* Обработчики событий */ 
+/* Обработчики событий */
 
 // Ввести: Откуда
 inputCitiesFrom.addEventListener('input', () => {
@@ -148,20 +148,20 @@ dropdownCitiesTo.addEventListener('click', (event) => {
   compareCities(inputCitiesFrom, inputCitiesTo);
 });
 
-/* /Обработчики событий */ 
+/* /Обработчики событий */
 
-/* Вызовы функций */ 
+/* Вызовы функций */
 
 // Прокси для получение данных с сервера 
-getData(PROXY + CITIES_API, 
+getData(PROXY + CITIES_API,
   data => citiesArray = JSON.parse(data).filter(item => item.name));
 
 // Получение данных с файла 
 // getData(CITIES_API, data => citiesArray = JSON.parse(data).filter(item => item.name));
 
 // Запросить и вывести в консоль лучшее предложение о направлении из Лиссабона в Ниццу на 13.05.2020
-getData(PROXY + CALENDAR + 
+getData(PROXY + CALENDAR +
   '?depart_date=2020-05-13&origin=LIS&destination=NCE&one_way=true&token=' + API_KEY,
-	data => 
-    console.log(JSON.parse(data).best_prices.filter(item => item.depart_date === '2020-05-13')));
-/* /Вызовы функций */ 
+  data =>
+  console.log(JSON.parse(data).best_prices.filter(item => item.depart_date === '2020-05-13')));
+/* /Вызовы функций */
