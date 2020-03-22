@@ -41,11 +41,7 @@ const getData = (url, callback) => {
   request.addEventListener('readystatechange', () => {
     if(request.readyState !== 4) return;
     
-    if(request.status === 200) {
-      callback(request.response);
-    } else {
-      console.error(request.status);
-    }
+    request.status === 200 ? callback(request.response) : console.error(request.status);
   });
 
   // Выполнить запрос
@@ -64,11 +60,7 @@ const showCitiesList = (input, list) => {
   if (input.value !== '') {
     const filterCity = citiesArray.filter((item) => {
       const fixItem = item.name.toLowerCase();
-
-      // Отсеять лишние города по первой букве
-      if (input.value[0].toLowerCase() == fixItem[0]){
-        return fixItem.includes(input.value.toLowerCase());
-      }
+      return fixItem.startsWith(input.value.toLowerCase());
     });
 
     // Выпадающий список с подходящими значениями 
@@ -123,16 +115,13 @@ const compareCities = (departureCity, arrivalCity) => {
 /**
  * Отображение дешевых полетов на текущий день
  */
-const renderCheapDay = (cheapFlight) => {
-  console.log(cheapFlight);
-};
+const renderCheapDay = cheapFlight => console.log(cheapFlight);
 
 /**
  * Отображение дешевых полетов на текущий год
+ * Сортирует полеты по цене(от меньшей к большей)
  */
-const renderCheapYear = (cheapFlights) => {
-  console.log(cheapFlights);
-};
+const renderCheapYear = cheapFlights => console.log(cheapFlights.sort((a, b) => a.value - b.value));
 
 /**
  * Парсинг дешевых полетов
@@ -146,7 +135,6 @@ const renderCheap = (data, date) => {
   renderCheapDay(cheapFlightDay);
   renderCheapYear(cheapFlightsYear);
 }
-
 
 /* /Функции */ 
 
@@ -176,10 +164,9 @@ dropdownCitiesTo.addEventListener('click', (event) => {
   compareCities(inputCitiesFrom, inputCitiesTo);
 });
 
-
 /**
  * Обработчик формы принимает объект события. 
- * Формирует обьект с данными полета и заносит их в запрос.
+ * Формирует обьект с данными полета, и заносит их в запрос.
  * Полученные данные отправляет на парсинг.
  * Чтобы браузер не перезагружал страницу при отправке формы 
  * и данные не терялись, - к объекту события добавлен специальный метод.
@@ -189,16 +176,22 @@ formSearch.addEventListener('submit', (event) => {
   event.preventDefault();
 
   const formData = {
-    from: citiesArray.find((item) => inputCitiesFrom.value === item.name).code,
-    to: citiesArray.find((item) => inputCitiesTo.value === item.name).code,
+    from: citiesArray.find(item => inputCitiesFrom.value === item.name),
+    to: citiesArray.find(item => inputCitiesTo.value === item.name),
     when: inputDateDepart.value
   }
 
-  const requestData = 
-    `?depart_date=${formData.when}&origin=${formData.from}` + 
-    `&destination=${formData.to}&one_way=true`;
+  // Проверить названия городов на корректность
+  if(formData.from && formData.to){
+    const requestData = 
+      `?depart_date=${formData.when}&origin=${formData.from.code}` + 
+      `&destination=${formData.to.code}&one_way=true`;
 
-  getData(CALENDAR+requestData, response => renderCheap(response, formData.when));
+    getData(CALENDAR+requestData, response => 
+      renderCheap(response, formData.when));
+  } else {
+    alert('Ошибка в названии города!');
+  }
 
 });
 
@@ -207,10 +200,26 @@ formSearch.addEventListener('submit', (event) => {
 /* Вызовы функций */ 
 
 // Прокси для получение данных с сервера 
-getData(PROXY + CITIES_API, 
-  data => citiesArray = JSON.parse(data).filter(item => item.name));
+getData(PROXY + CITIES_API, data => {
+  citiesArray = JSON.parse(data).filter(item => item.name);
+
+  // Отсортировать названия направлений по алфавиту
+  citiesArray.sort((a, b) => {
+    if (a.name > b.name) {
+      return 1;
+    }
+    if (a.name < b.name) {
+      return -1;
+    }
+    return 0;
+  });
+
+  console.log(citiesArray);
+  
+});
 
 // Получение данных с файла 
-// getData(CITIES_API, data => citiesArray = JSON.parse(data).filter(item => item.name));
+// getData(CITIES_API, data => 
+//   citiesArray = JSON.parse(data).filter(item => item.name));
 
 /* /Вызовы функций */ 
